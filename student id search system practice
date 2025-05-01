@@ -1,0 +1,256 @@
+/* Write a menu-driven C program that allows the user to perform the following tasks:
+
+1) Add a Student ID
+   -> Use scanf to get input from the user.
+
+2) Delete a Student ID
+   -> Find the index of the ID to delete, then shift all subsequent IDs one position forward.
+
+3) Insert a Student ID at a given position or index
+   -> Check for duplicates, find the position, shift all elements from the end to the position one step backward,
+      and then insert the new student ID at the desired position.
+
+4) Search for a Student ID
+   -> Get the ID input from the user, and use a for-loop with an if statement to check if the ID exists.
+
+5) Update a Student ID
+   -> Ask the user which existing ID to change,
+      -> Then ask what the new ID should be, and store it at that position.
+
+6) Display all Student IDs
+   -> Use a for-loop to print all IDs up to the current count.
+
+Note: Each student ID must be unique.
+*/
+
+
+#include <stdio.h>
+#include <stdbool.h>
+#define N 5
+
+int main(void)
+{
+    int id, command, i, pos, newID, searchID, updateID;
+    int studentID[N]; // Array to store student IDs
+    int count = 0;     // Current number of IDs stored
+    bool found = false;
+
+    printf("Commands:\n1) Add\n2) Delete\n3) Insert\n4) Search\n5) Update\n6) Display\n*Enter 0 to terminate\n");
+
+    for (;;)
+    {
+        printf("\nEnter the command number:\t");
+        scanf("%d", &command);
+
+        switch (command)
+        {
+            default:
+                printf("Invalid command input\n");
+                break;
+
+            case 0:
+                printf("Exit program\n");
+                return 0;
+
+            case 1:
+                // Add a student ID
+                if (count == N)
+                {
+                    printf("Memory is full\n");
+                    break;
+                }
+
+                printf("Add a student ID:\t");
+                scanf("%d", &id);
+
+                found = false;
+                for (i = 0; i < count; i++)
+                {
+                    if (studentID[i] == id)
+                    {
+                        found = true;
+                        printf("Invalid ID (duplicate)\n");
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    studentID[count] = id;
+                    count++;
+                }
+                break;
+
+            case 2:
+                // Delete a student ID
+                if (count == 0)
+                {
+                    printf("Nothing to delete\n");
+                    break;
+                }
+
+                printf("Delete a student ID:\t");
+                scanf("%d", &id);
+
+                found = false;
+                for (i = 0; i < count; i++)
+                {
+                    if (studentID[i] == id)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found)
+                {
+                    for (int j = i; j < count - 1; j++)
+                        studentID[j] = studentID[j + 1];
+
+                    count--;
+                    printf("ID deleted successfully\n");
+                }
+                else
+                {
+                    printf("ID not found\n");
+                }
+                break;
+
+            case 3:
+                // Insert a student ID at a given position
+                if (count == N)
+                {
+                    printf("Memory is full\n");
+                    break;
+                }
+
+                printf("Insert student ID:\t");
+                scanf("%d", &id);
+
+                found = false;
+                for (i = 0; i < count; i++)
+                {
+                    if (studentID[i] == id)
+                    {
+                        found = true;
+                        printf("Invalid input (duplicate ID)\n");
+                        break;
+                    }
+                }
+
+                if (found)
+                    break;
+
+                printf("Enter a position to input new ID (0-%d):\t", count);
+                scanf("%d", &pos);
+
+                if (pos < 0 || pos > count)
+                {
+                    printf("Invalid position input\n");
+                    break;
+                }
+
+                // Shift elements to the right to make space
+                for (i = count - 1; i >= pos; i--)
+                {
+                    studentID[i + 1] = studentID[i];
+                }
+
+                studentID[pos] = id;
+                count++;
+                printf("ID inserted successfully\n");
+                break;
+
+            case 4:
+                // Search for a student ID
+                if (count == 0)
+                {
+                    printf("Nothing to search\n");
+                    break;
+                }
+
+                printf("Search student ID:\t");
+                scanf("%d", &id);
+
+                found = false;
+                for (i = 0; i < count; i++)
+                {
+                    if (studentID[i] == id)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found)
+                    printf("ID exists at position %d\n", i);
+                else
+                    printf("ID does not exist\n");
+                break;
+
+            case 5:
+                // Update a student ID
+                if (count == 0)
+                {
+                    printf("Nothing to update\n");
+                    break;
+                }
+
+                printf("Enter the student ID to update:\t");
+                scanf("%d", &id);
+
+                found = false;
+                for (i = 0; i < count; i++)
+                {
+                    if (studentID[i] == id)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    printf("Invalid input (ID not found)\n");
+                    break;
+                }
+
+                printf("Input new student ID:\t");
+                scanf("%d", &updateID);
+
+                // Check for duplication
+                for (int j = 0; j < count; j++)
+                {
+                    if (studentID[j] == updateID)
+                    {
+                        printf("Invalid input (duplicate ID)\n");
+                        found = false;
+                        break;
+                    }
+                }
+
+                if (found)
+                {
+                    studentID[i] = updateID;
+                    printf("ID updated successfully\n");
+                }
+
+                break;
+
+            case 6:
+                // Display all student IDs
+                if (count == 0)
+                {
+                    printf("Nothing to display\n");
+                    break;
+                }
+
+                printf("Display all student IDs:\n");
+                for (i = 0; i < count; i++)
+                    printf("%d\n", studentID[i]);
+                break;
+        }
+    }
+
+    return 0;
+}
