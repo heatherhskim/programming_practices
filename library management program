@@ -1,0 +1,293 @@
+// Write a menu-driven Library Management program in C.
+
+// Book ID  
+// Book Name  
+// Publication Date  
+// Publisher Name  
+// Author Name  
+// Author Address  
+// Author Phone Number  
+// Author Email Address  
+// Author Short Biography
+
+// The program should support the following operations:
+
+// Add book information  
+// Update book information  
+// Delete book information  
+// Search book information  
+// Display a list of all books
+
+// Book ID should be unique  
+// Use functions  
+// Store all information in file(s)
+
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+#include <stdlib.h>
+
+struct book
+{
+    int bookID;
+    char bookName[20];
+    char publicationDate[20];
+    char publisherName[20];
+    char authorName[20];
+    char authorAddress[20];
+    char authorPhoneNum[20];
+    char authorEmailAddress[20];
+    char authorShortBio[20];
+};
+
+#define CMD_EXIT        0
+#define CMD_ADD         1
+#define CMD_UPDATE      2
+#define CMD_DELETE      3
+#define CMD_SEARCH      4
+#define CMD_DISPLAY     5
+
+#define MAX_BOOK_COUNT  10
+
+int add(struct book arrBookInfo[], int bookCount);
+void update(struct book *pBookInfo, int newBookID);
+void delete(struct book arrBookInfo[], int bookCount, int deleteIndex);
+int search(struct book arrBookInfo[], int bookCount, int searchBookID);
+void display(struct book arrBookInfo[], int bookCount);
+void displaySingle(struct book bookInfo);
+void copyBookInfo(struct book* pBookInfo, struct book bookInfo);
+bool write(struct book arrBookInfo[], int bookCount);
+
+int main(void)
+{
+    int cmd;
+    // Number of books stored: 0 ~ MAX_BOOK_COUNT
+    // Increment by 1 when adding, decrement by 1 when deleting
+    int bookCount = 0;
+    struct book arrBookInfo[MAX_BOOK_COUNT];
+    int searchBookID;
+    int updateBookID;
+    int deleteBookID;
+    int index = -1;
+    
+    while(true)
+    {
+        // Prompt user for a command
+        printf("Enter the number\n");
+        printf("ADD(1), UPDATE(2), DELETE(3), SEARCH(4), DISPLAY(5), EXIT(0)\n");
+        printf(">> ");
+        scanf("%d", &cmd);
+        if(cmd == CMD_EXIT)
+        {
+            printf("Exit!\n");
+            break;
+        }
+
+        switch(cmd)
+        {
+            case CMD_ADD: 
+                printf("\n\nAdd book info\n");
+                int error = add(arrBookInfo, bookCount);
+                if (error == 1) {
+                    // On success, increment count
+                    bookCount++;
+                    write(arrBookInfo, bookCount);
+                    printf("-> Success\n");
+                } else if (error == -1) {
+                    printf("-> Duplicate book ID\n");
+                } else {
+                    printf("-> Not enough memory!\n");
+                }
+                break;
+            case CMD_UPDATE: 
+                printf("\n\nUpdate book info\n");
+                // First search for the book to be updated,
+                // If found, allow update
+                // If not found, print message
+                printf("Enter book ID to update: ");
+                scanf("%d", &updateBookID);
+                // Use search() to check if book ID exists
+                index = search(arrBookInfo, bookCount, updateBookID);
+                if (index < 0) {
+                    printf("-> Book ID not found\n");
+                } else {
+                    update(&arrBookInfo[index], updateBookID);
+                    write(arrBookInfo, bookCount);
+                    printf("-> Success\n");
+                }
+                break;
+            case CMD_DELETE: 
+                printf("\n\nDelete book info: \n");
+                // Book info array shifts forward by one
+                printf("Enter book ID to delete: ");
+                scanf("%d", &deleteBookID);
+                index = search(arrBookInfo, bookCount, deleteBookID);
+                if (index < 0) {
+                    printf("-> Book ID not found\n");
+                } else {
+                    // index = location of book in arrBookInfo
+                    delete(arrBookInfo, bookCount, index);
+                    // Decrement count after deletion
+                    bookCount--;
+                    write(arrBookInfo, bookCount);
+                    printf("-> Success\n");
+                }
+                break;
+            case CMD_SEARCH: 
+                printf("\n\nSearch book info\n");
+                printf("Enter book ID to search: ");
+                scanf("%d", &searchBookID);
+                index = search(arrBookInfo, bookCount, searchBookID);
+                if(index < 0) {
+                    printf("-> Book ID not found\n");
+                } else {
+                    displaySingle(arrBookInfo[index]);
+                }
+                break; 
+            case CMD_DISPLAY: 
+                printf("\n\nDisplay a list of all books\n");
+                display(arrBookInfo, bookCount);
+                break;
+            default:
+                printf("Invalid!\n");
+                break;
+        }
+        printf("\n");
+    }
+    
+    return 0;
+}
+
+/**
+ * Returns 0 if storage is full
+ * Returns -1 if bookID already exists
+ * Returns 1 if added successfully
+*/
+int add(struct book arrBookInfo[], int bookCount)
+{
+    if(bookCount == 10)
+    {
+        return 0;
+    }
+    int newBookID;
+    printf("Enter new book ID: \t");
+    scanf("%d", &newBookID);
+    // Check if ID already exists
+    int index = search(arrBookInfo, bookCount, newBookID);
+    if (index >= 0) {
+        return -1;
+    }
+    update(&arrBookInfo[bookCount], newBookID);
+    return 1;
+}
+
+void update(struct book *pBookInfo, int newBookId)
+{
+    pBookInfo->bookID = newBookId;
+    getchar();
+    printf("Enter book name: \t");
+    gets(pBookInfo->bookName);
+
+    printf("Enter publication date: \t");
+    gets(pBookInfo->publicationDate);
+
+    printf("Enter publisher name: \t");
+    gets(pBookInfo->publisherName);
+
+    printf("Enter author name: \t");
+    gets(pBookInfo->authorName);
+
+    printf("Enter author address: \t");
+    gets(pBookInfo->authorAddress);
+
+    printf("Enter author phone number: \t");
+    gets(pBookInfo->authorPhoneNum);
+
+    printf("Enter author email address: \t");
+    gets(pBookInfo->authorEmailAddress);
+
+    printf("Enter author short biography: \t");
+    gets(pBookInfo->authorShortBio);
+}
+
+/**
+ * Deletes arrBookInfo[deleteIndex]
+ * Shifts following elements forward
+*/
+void delete(struct book arrBookInfo[], int bookCount, int deleteIndex)
+{
+    if (bookCount == 1 && deleteIndex == 0)
+        return;
+        
+    for (int i = deleteIndex + 1; i < bookCount; i++) {
+        copyBookInfo(&arrBookInfo[i-1], arrBookInfo[i]);
+    }
+}
+
+void copyBookInfo(struct book* pBookInfo, struct book bookInfo)
+{
+    pBookInfo->bookID = bookInfo.bookID;
+    strcpy(pBookInfo->bookName, bookInfo.bookName);
+    strcpy(pBookInfo->publicationDate, bookInfo.publicationDate);
+    strcpy(pBookInfo->publisherName, bookInfo.publisherName);
+    strcpy(pBookInfo->authorName, bookInfo.authorName);
+    strcpy(pBookInfo->authorAddress, bookInfo.authorAddress);
+    strcpy(pBookInfo->authorPhoneNum, bookInfo.authorPhoneNum);
+    strcpy(pBookInfo->authorEmailAddress, bookInfo.authorEmailAddress);
+    strcpy(pBookInfo->authorShortBio, bookInfo.authorShortBio);
+}
+
+/**
+ * Search by book ID.
+ * Returns index (0~10) if found, else returns -1
+*/
+int search(struct book arrBookInfo[], int bookCount, int searchBookID)
+{
+    if(bookCount == 0)
+    {
+        return -1;
+    }
+    for(int i = 0; i < bookCount; i++)
+    {
+        if(arrBookInfo[i].bookID == searchBookID)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+/**
+ * Display information of a single book
+*/
+void displaySingle(struct book bookInfo)
+{
+    printf("#################################################################\n");
+    printf("\tbook id: %d\n", bookInfo.bookID);
+    printf("\tbook name: %s\n", bookInfo.bookName);
+    printf("\tpublication date: %s\n", bookInfo.publicationDate);
+    printf("\tpublisher name: %s\n", bookInfo.publisherName);
+    printf("\tauthor name: %s\n", bookInfo.authorName);
+    printf("\tauthor address: %s\n", bookInfo.authorAddress);
+    printf("\tauthor phone number: %s\n", bookInfo.authorPhoneNum);
+    printf("\tauthor email address: %s\n", bookInfo.authorEmailAddress);
+    printf("\tauthor short Biography: %s\n", bookInfo.authorShortBio);
+}
+
+/**
+ * Display all book information
+ * For each book in the array, call displaySingle
+*/
+void display(struct book arrBookInfo[], int bookCount)
+{
+    if(bookCount == 0)
+    {
+        printf("No book available\n");
+        return;
+    }    
+
+    for(int i=0; i<bookCount; i++)
+    {
+        displaySingle(arrBookInfo[i]);
+    }
+}
