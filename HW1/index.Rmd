@@ -1,0 +1,51 @@
+---
+title: "Heather Kim"
+image: "profile.jpg"
+links:
+  - label: GitHub
+    url: "https://github.com/heatherhskim"
+  - label: Portfolio
+    url: "https://heatherhskim.framer.website"
+output:
+  postcards::trestles
+
+---
+
+  
+<style>
+@font-face {
+  font-family: 'Edwardian Script';
+  src: url('fonts/edwardianscriptitc.ttf');
+}
+@font-face {
+  font-family: 'Quicksand';
+  src: url('fonts/Quicksand-Regular.ttf');
+}
+
+h1, h2, .title {
+  font-family: 'Edwardian Script';
+}
+
+body, h3, h4, p, li, a {
+  font-family: 'Quicksand';
+}
+</style>
+
+## About
+
+I'm a senior at UT Austin studying Art & Entertainment Technology, with a minor in statistics and data science. I work as a product designer and creative technologist in immersive media industry. I like building installations that use light, sound, and space to change how a room feels.
+
+## A few things I'm into
+
+- Immersive and interactive installation art
+- Fabrics & 3D Printing
+- Vintage films
+- Creative coding
+
+---
+
+*This site was built on:*
+
+```{r build-time, echo=FALSE}
+Sys.time()
+```
